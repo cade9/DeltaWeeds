@@ -3,19 +3,11 @@
 # Contact: cade@ucmerced.edu, c.ade92@gmail.com
 # Date Updated: 11/29/2018
 # Code based on Shruti Khanna"s (shrkhanna@ucdavis.edu) IDL script
-# l6_batch_avrising2017_lsu.pro located at https://github.com/shrkhanna/IDL_Delta2017
+# l6_batch_avrising2017_lcr.pro located at https://github.com/shrkhanna/IDL_Delta2017
 # Purpose:
-# Calculate spectral unmixing using spectra of six endmembers - emergent vegetation (emr), 
-# non-photosynthetic vegetation (npv), submerged aquatic vegetation (sav), soil, vegetation,
-# and water. 
-# Output: a raster stack in .envi format nlayers - 1 is the % of each endmember and the final
-# layer is RMSE
+# Create continuum removed rasters for three band positions 
 # **REQUIRES** 
-# 1) CSV file with spectral endmembers. Column 1 should be Wavelength (info in nm), remaining
-# columns should have the title of each endmember. ncols = nendmembers + 1
-# 2) bad bands csv file. Column one should have no header. Column should be only 0s and 1s
-# 1s correspond to a "good" band position and 0s correspond to a "bad" band positions
-# nrows = number of bands in imagery
+# 1) list of AVIRIS imagery and band positions of continuum removal 
 #####################################################################################
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #### USER DEFINED VARIABLES #### 
