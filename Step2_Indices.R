@@ -23,10 +23,10 @@ imgPattern <- "2017.*bsq$"
 # 3) location of continuum removal images 
 crDir <-""
 # 3)
-outsuf = '_indx.img'            # output images suffix
-crsuf1 = '_crw1.img'            # suffix for continuum removal at 980 nm  (water)
-crsuf2 = '_crw2.img'            # suffix for continuum removal at 1200 nm (water)
-crsuf3 = '_crc.img'             # suffix for continuum removal at 2300 nm (cellulose)
+outsuf = '_indx$'            # output images suffix
+crsuf1 = '_crw1$'            # suffix for continuum removal at 980 nm  (water)
+crsuf2 = '_crw2$'            # suffix for continuum removal at 1200 nm (water)
+crsuf3 = '_crc$'             # suffix for continuum removal at 2300 nm (cellulose)
 # 3) source for diff_index function
 source("./Functions/diff_index.R")
 # 4) source for calculate_angle.R
@@ -37,7 +37,8 @@ source("./Functions/calculate_angle.R")
 #rasterOptions(tmpdir = tempDir )
 
 #### OUTPUT FILES ####
-
+outDir <- "./Output/Index"
+outSuf <- "_index"
 
                           #### END USER DEFINED VARIABLES  ####
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,6 +71,11 @@ posNIR2 = 140 # NIR2 position
 poSWIR1 = 259 # SWIR1 position
 poSWIR2 = 367 # SWIR2 position
 
+### CR minima ###
+cr1min = 8
+cr2min = 9
+cr3min = 14
+
 ## all relevant band positions for indexes calculated below
 # length(pos) = 24
 pos = c(14,  27,  31,  35,  36,  38,  43,  56,  60,  63,  64,  
@@ -93,8 +99,8 @@ for (i in 1:length(avrFiles)){
   
   ## Define angle postions ##
   # read in and convert to micrometers
-  anglew1 = #empty data frame
-  anglew1[1] = avrWl[posG]/1000       # Green Wavelength
+  anglewl = NULL
+  anglewl[1] = avrWl[posG]/1000       # Green Wavelength
   anglewl[2] = avrWl[posR]/1000       # Red   wavelength
   anglewl[3] = avrWl[posNIR1]/1000    # NIR   wavelength
   anglewl[4] = avrWl[poSWIR1]/1000    # SWIR1 wavelength
@@ -184,15 +190,22 @@ for (i in 1:length(avrFiles)){
   
   # SWIR2 band
   r = addLayer(r, avrImg[[24]])
-  #########################################
+  ###############Cont removal bands##########################
+  # raster crw1
+  crw1_ras <- stack(crw1L[i])
+  # raster crw2
+  crw1_ras <- stack(crw2L[i])
+  # raster crw3
+  crcL_ras <- stack(crw2L[i])
+
   # Continuum Removal minima for Water 1
-  r = addLayer(r, crmin1[[i]])
+  r = addLayer(r, crw1_ras[[cr1min]])
   
   # Continuum Removal minima for Water 2
-  r = addLayer(r, crmin2[[i]])
+  r = addLayer(r, crw2_ras[[cr2min]])
   
   # Continuum Removal minima for Cellulose
-  r = addLayer(r, crmin3[[i]])
+  r = addLayer(r, crcL_ras[[cr3min]])
   #################################
   
   # two SAV indices, NDAVI and WAVI
@@ -200,14 +213,15 @@ for (i in 1:length(avrFiles)){
   r = addLayer(r,((avrExt[[2]] - avrExt[[1]])/(avrExt[[2]] + avrExt[[1]] + 0.5))*(1.5))
   
   
-  
-  ## perhaps put an if statement here that if the nlayers of r does not equal something 
-
+  ### change band names ###
   names(r) <- c( "NDVI", "gNDVI", "RGRatio", "NDWI", "NDWI2", "LPI", "ANIR", "ARed", "ASWIR1", "mNDVI",
                  "GI", "PRI", "CAI", "WADI", "ADW1", "ADW2", "SIPI", "CRI550", "CRI700", "ARI", "Blue", 
                  "Green", "Red", "NIR", "SWIR1", "SWIR2", "CRWat1", "CRWat2", "CRCell", "NDAVI", "WAVI")
   
-  writeRaster()
+  ### write raster out ###
+  rBase <- basename(imgF) 
+  outFile <- paste0(outDir,"/",rBase,outSuf)
+  writeRaster(r,outFile, format ="ENVI")
 }
 
 
